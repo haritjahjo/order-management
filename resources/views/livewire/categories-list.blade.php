@@ -60,9 +60,15 @@
                                         <td class="px-6">
                                             <div
                                                 class="inline-block relative mr-2 w-10 align-middle transition duration-200 ease-in select-none">
-                                                <input type="checkbox" name="toggle"
+                                                {{-- <input type="checkbox" name="toggle"
                                                     class="block absolute w-6 h-6 bg-white rounded-full border-4 appearance-none cursor-pointer focus:outline-none toggle-checkbox" />
                                                 <label for="toggle"
+                                                    class="block overflow-hidden h-6 bg-gray-300 rounded-full cursor-pointer toggle-label"></label> --}}
+                                                <input wire:model="active.{{ $category->id }}"
+                                                    wire:click="toggleIsActive({{ $category->id }})" type="checkbox"
+                                                    name="toggle" id="{{ $loop->index . $category->id }}"
+                                                    class="block absolute w-6 h-6 bg-white rounded-full border-4 appearance-none cursor-pointer focus:outline-none toggle-checkbox" />
+                                                <label for="{{ $loop->index . $category->id }}"
                                                     class="block overflow-hidden h-6 bg-gray-300 rounded-full cursor-pointer toggle-label"></label>
                                             </div>
                                         </td>
