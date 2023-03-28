@@ -37,11 +37,14 @@
                                 </tr>
                             </thead>
 
-                            <tbody class="bg-white divide-y divide-gray-200 divide-solid">
+                            {{-- <tbody class="bg-white divide-y divide-gray-200 divide-solid"> --}}
+                            <tbody wire:sortable="updateOrder" class="bg-white divide-y divide-gray-200 divide-solid">
                                 @foreach ($categories as $category)
-                                    <tr class="bg-white">
+                                    {{-- <tr class="bg-white"> --}}
+                                    <tr class="bg-white" wire:sortable.item="{{ $category->id }}" wire:key="{{ $loop->index }}">
                                         <td class="px-6">
-                                            <button>
+                                            {{-- <button> --}}
+                                            <button wire:sortable.handle>
                                                 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
                                                     viewBox="0 0 256 256">
                                                     <path fill="none" d="M0 0h256v256H0z" />
@@ -86,7 +89,8 @@
                             </tbody>
                         </table>
                     </div>
-                    {!! $categories->links() !!}
+                    {{-- {!! $categories->links() !!} --}}
+                    {!! $links !!}
                 </div>
             </div>
         </div>

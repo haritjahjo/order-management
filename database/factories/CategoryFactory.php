@@ -18,10 +18,11 @@ class CategoryFactory extends Factory
     public function definition(): array
     {
         $country = fake()->unique()->country();
-        
+
         return [
             'name' => $country,
             'slug' => Str::slug($country),
+            'position' => $this->faker->unique()->randomNumber(2),
         ];
     }
 }
