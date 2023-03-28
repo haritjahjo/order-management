@@ -19,6 +19,8 @@ class CategoriesList extends Component
     public Collection $categories;
 
     public int $editedCategoryId = 0;
+    protected $listeners = ['delete'];
+
     public function render()
     {
         //$categories = Category::paginate(10);
@@ -67,15 +69,15 @@ class CategoriesList extends Component
         $this->category->save();
 
         //$this->reset('showModal');
-        $this->resetValidation(); 
-        $this->reset('showModal', 'editedCategoryId'); 
+        $this->resetValidation();
+        $this->reset('showModal', 'editedCategoryId');
     }
 
-    public function cancelCategoryEdit() 
+    public function cancelCategoryEdit()
     {
         $this->resetValidation();
         $this->reset('editedCategoryId');
-    } 
+    }
 
     public function toggleIsActive($categoryId)
     {
@@ -100,5 +102,21 @@ class CategoriesList extends Component
         $this->editedCategoryId = $categoryId;
 
         $this->category = Category::find($categoryId);
+    }
+
+    public function deleteConfirm($method, $id = null)
+    {
+        $this->dispatchBrowserEvent('swal:confirm', [
+            'type'   => 'warning',
+            'title'  => 'Are you sure?',
+            'text'   => '',
+            'id'     => $id,
+            'method' => $method,
+        ]);
+    }
+
+    public function delete($id)
+    {
+        Category::findOrFail($id)->delete();
     }
 }
