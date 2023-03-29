@@ -9,6 +9,11 @@ use Livewire\Component;
 use App\Models\Category;
 use Livewire\WithPagination;
 
+use App\Exports\ProductsExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+
 class ProductsList extends Component
 {
     use WithPagination;
@@ -45,10 +50,10 @@ class ProductsList extends Component
         $this->countries = Country::pluck('name', 'id')->toArray();
     }
 
-    public function getSelectedCountProperty(): int 
+    public function getSelectedCountProperty(): int
     {
         return count($this->selected);
-    } 
+    }
 
     public function render()
     {
@@ -90,9 +95,9 @@ class ProductsList extends Component
             $this->reset('sortDirection');
             $this->sortColumn = $column;
         }
-    }    
+    }
 
-    public function deleteConfirm($method, $id = null): void 
+    public function deleteConfirm($method, $id = null): void
     {
         $this->dispatchBrowserEvent('swal:confirm', [
             'type'  => 'warning',
@@ -102,20 +107,27 @@ class ProductsList extends Component
             'method' => $method,
         ]);
     }
- 
+
     public function delete($id): void
     {
         $product = Product::findOrFail($id);
- 
-        $product->delete();
-    } 
 
-    public function deleteSelected(): void 
+        $product->delete();
+    }
+
+    public function deleteSelected(): void
     {
         $products = Product::whereIn('id', $this->selected)->get();
- 
+
         $products->each->delete();
- 
+
         $this->reset('selected');
-    } 
+    }
+
+    public function export($format): BinaryFileResponse
+    {
+        abort_if(!in_array($format, ['csv', 'xlsx', 'pdf']), Response::HTTP_NOT_FOUND);
+
+        return Excel::download(new ProductsExport($this->selected), 'products.' . $format);
+    }
 }
