@@ -17,6 +17,9 @@ class ProductsList extends Component
 
     public array $countries = [];
 
+    public string $sortColumn = 'products.name';
+
+    public string $sortDirection = 'asc';
     public array $searchColumns = [
         'name' => '',
         'price' => ['', ''],
@@ -35,11 +38,11 @@ class ProductsList extends Component
     {
         //$products = Product::paginate(10);
 
-        $products = Product::query() 
+        $products = Product::query()
             ->select(['products.*', 'countries.id as countryId', 'countries.name as countryName',])
             ->join('countries', 'countries.id', '=', 'products.country_id')
             ->with('categories');
- 
+
         foreach ($this->searchColumns as $column => $value) {
             if (!empty($value)) {
                 $products->when($column == 'price', function ($products) use ($value) {
@@ -50,15 +53,35 @@ class ProductsList extends Component
                         $products->where('products.price', '<=', $value[1] * 100);
                     }
                 })
-                ->when($column == 'category_id', fn($products) => $products->whereRelation('categories', 'id', $value))
-                ->when($column == 'country_id', fn($products) => $products->whereRelation('country', 'id', $value))
-                ->when($column == 'name', fn($products) => $products->where('products.' . $column, 'LIKE', '%' . $value . '%'));
+                    ->when($column == 'category_id', fn ($products) => $products->whereRelation('categories', 'id', $value))
+                    ->when($column == 'country_id', fn ($products) => $products->whereRelation('country', 'id', $value))
+                    ->when($column == 'name', fn ($products) => $products->where('products.' . $column, 'LIKE', '%' . $value . '%'));
             }
-        } 
+        }
 
+        $products->orderBy($this->sortColumn, $this->sortDirection);
         return view('livewire.products-list', [
             //'products' => $products,
-            'products' => $products->paginate(10) 
+            'products' => $products->paginate(10)
         ]);
     }
+
+    public function sortByColumn($column): void
+    {
+        if ($this->sortColumn == $column) {
+            $this->sortDirection = $this->sortDirection == 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->reset('sortDirection');
+            $this->sortColumn = $column;
+        }
+    }
+
+    protected $queryString = [
+        'sortColumn' => [
+            'except' => 'products.name'
+        ],
+        'sortDirection' => [
+            'except' => 'asc',
+        ],
+    ];
 }
