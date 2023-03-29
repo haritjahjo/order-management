@@ -20,6 +20,9 @@ class ProductsList extends Component
     public string $sortColumn = 'products.name';
 
     public string $sortDirection = 'asc';
+    protected $listeners = ['delete', 'deleteSelected'];
+    public array $selected = [];
+
     public array $searchColumns = [
         'name' => '',
         'price' => ['', ''],
@@ -27,12 +30,25 @@ class ProductsList extends Component
         'category_id' => 0,
         'country_id' => 0,
     ];
+    protected $queryString = [
+        'sortColumn' => [
+            'except' => 'products.name'
+        ],
+        'sortDirection' => [
+            'except' => 'asc',
+        ],
+    ];
 
     public function mount(): void
     {
         $this->categories = Category::pluck('name', 'id')->toArray();
         $this->countries = Country::pluck('name', 'id')->toArray();
     }
+
+    public function getSelectedCountProperty(): int 
+    {
+        return count($this->selected);
+    } 
 
     public function render()
     {
@@ -74,14 +90,32 @@ class ProductsList extends Component
             $this->reset('sortDirection');
             $this->sortColumn = $column;
         }
-    }
+    }    
 
-    protected $queryString = [
-        'sortColumn' => [
-            'except' => 'products.name'
-        ],
-        'sortDirection' => [
-            'except' => 'asc',
-        ],
-    ];
+    public function deleteConfirm($method, $id = null): void 
+    {
+        $this->dispatchBrowserEvent('swal:confirm', [
+            'type'  => 'warning',
+            'title' => 'Are you sure?',
+            'text'  => '',
+            'id'    => $id,
+            'method' => $method,
+        ]);
+    }
+ 
+    public function delete($id): void
+    {
+        $product = Product::findOrFail($id);
+ 
+        $product->delete();
+    } 
+
+    public function deleteSelected(): void 
+    {
+        $products = Product::whereIn('id', $this->selected)->get();
+ 
+        $products->each->delete();
+ 
+        $this->reset('selected');
+    } 
 }
